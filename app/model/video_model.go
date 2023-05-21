@@ -1,8 +1,10 @@
 package model
 
 import (
+	"fmt"
 	"mime/multipart"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 
@@ -31,6 +33,25 @@ func (v *Video) SaveVideo(c *gin.Context, file *multipart.FileHeader) error {
 
 	if err := c.SaveUploadedFile(file, destination); err != nil {
 		return err
+	}
+
+	// Convert and save the video in different resolutions using FFmpeg
+	resolutions := []string{"240p", "360p", "480p"}
+	for _, res := range resolutions {
+		resolutionDir := filepath.Join(uploadDir, res)
+		if err := os.MkdirAll(resolutionDir, os.ModePerm); err != nil {
+			return err
+		}
+
+		outputFilename := fmt.Sprintf("%s_%s.mp4", filename, res)
+		outputPath := filepath.Join(resolutionDir, outputFilename)
+
+		// Run FFmpeg command to convert video to the desired resolution
+		cmd := exec.Command("ffmpeg", "-i", destination, "-vf", fmt.Sprintf("scale=-2:%s", res), outputPath)
+		err := cmd.Run()
+		if err != nil {
+			return fmt.Errorf("FFmpeg conversion error: %s", err.Error())
+		}
 	}
 
 	return nil

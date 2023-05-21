@@ -27,8 +27,9 @@ func (vc *VideoController) UploadVideo(c *gin.Context) {
 	err = vc.videoModel.SaveVideo(c, file)
 
 	if err != nil {
-		c.String(500, "Internal Server Error - Failed to save Video")
+		c.String(500, err.Error())
+	} else {
+		c.String(200, "Video File Upload Successfully")
 	}
 
-	c.String(200, "Video File Upload Successfully")
 }
