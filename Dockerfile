@@ -1,8 +1,14 @@
-# Use the official Golang base image
-FROM golang:1.16-alpine
+# Use the official Go Docker image with version 1.19.7
+FROM golang:1.19.7
 
 # Set the working directory inside the container
 WORKDIR /app
+
+# Copy the Go modules manifests
+COPY go.mod go.sum ./
+
+# Download the Go dependencies
+RUN go mod download
 
 # Copy the source code into the container
 COPY . .
@@ -10,11 +16,5 @@ COPY . .
 # Build the Go application
 RUN go build -o main .
 
-# Expose the port the application listens on
-EXPOSE 8090
-
-# Add a volume mount for the uploads directory
-VOLUME ["/app/uploads"]
-
-# Run the application
+# Set the entry point command to run the built executable
 CMD ["./main"]

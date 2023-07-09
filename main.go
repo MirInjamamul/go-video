@@ -23,5 +23,6 @@ func main() {
 
 	view.RegisterRoutes(r)
 
+	// r.Run("51.159.111.59:8090")
 	r.Run(":8090")
 }

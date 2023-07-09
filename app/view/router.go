@@ -10,5 +10,4 @@ func RegisterRoutes(r *gin.Engine) {
 	videoController := controller.NewVideoController()
 
 	r.POST("/uploadVideo", videoController.UploadVideo)
-	r.GET("/stack/:name", videoController.GetStackStatus)
 }
