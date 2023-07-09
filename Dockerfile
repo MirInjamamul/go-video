@@ -1,6 +1,6 @@
 # Use the official Go Docker image with version 1.19.7
 FROM golang:1.19.7
-
+RUN apt-get update && apt-get install ffmpeg -y
 # Set the working directory inside the container
 WORKDIR /app
 
