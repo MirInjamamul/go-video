@@ -36,7 +36,8 @@ func (v *Video) SaveVideo(c *gin.Context, file *multipart.FileHeader) error {
 	}
 
 	// Convert and save the video in different resolutions using FFmpeg
-	resolutions := []string{"240p", "360p", "480p"}
+	// resolutions := []string{"240p", "360p", "480p"}
+	resolutions := []string{"360p"}
 	for _, res := range resolutions {
 		resolutionDir := filepath.Join(uploadDir, res)
 		if err := os.MkdirAll(resolutionDir, os.ModePerm); err != nil {

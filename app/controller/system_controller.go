@@ -23,7 +23,7 @@ func NewSystemController() *SystemController {
 func (sc *SystemController) ContainerStatus(c *gin.Context) {
 
 	// Create a new Docker Client
-	cli, err := client.NewClientWithOpts(client.WithHost("http://169.150.255.33:2375"))
+	cli, err := client.NewClientWithOpts(client.WithHost("tcp://169.150.255.33:2375"))
 	if err != nil {
 		c.String(400, err.Error())
 	}
