@@ -32,13 +32,13 @@ func (vc *VideoController) UploadVideo(c *gin.Context) {
 		return
 	}
 
-	err = vc.videoModel.SaveVideo(c, file)
+	videoPaths, err := vc.videoModel.SaveVideo(c, file)
 
 	if err != nil {
 		log.Printf(err.Error())
 		c.JSON(500, gin.H{"status": false, "error": "Internal Server Error - Failed to save Video"})
 	} else {
-		c.JSON(200, gin.H{"status": true, "message": "Video File Upload Successfully"})
+		c.JSON(200, gin.H{"status": true, "message": "Video File Upload Successfully", "url": videoPaths})
 	}
 
 }
