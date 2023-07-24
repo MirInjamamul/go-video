@@ -21,7 +21,13 @@ func (vc *VideoController) UploadVideo(c *gin.Context) {
 	file, err := c.FormFile("video")
 
 	if err != nil {
+		// Log for Form Values
+		log.Printf("Request Headers: %v \n", c.Request.Header)
+		// Log for Form Values
+		formValues := c.Request.PostForm
+		log.Printf("Request Form Values: %v \n", formValues)
 		log.Printf(err.Error())
+
 		c.JSON(400, gin.H{"status": false, "error": "Bad Request - No Video file uploaded"})
 		return
 	}
