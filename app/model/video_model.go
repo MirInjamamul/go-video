@@ -8,6 +8,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -16,9 +17,11 @@ type Video struct {
 	Filename string
 }
 
-func (v *Video) SaveVideo(c *gin.Context, file *multipart.FileHeader) (map[string]string, error, string) {
-	log.Printf("Save Video Started")
-	v.Filename = filepath.Base(file.Filename)
+func (v *Video) SaveVideo(c *gin.Context, file *multipart.FileHeader, userId string) (map[string]string, error, string) {
+	// Generating new FileName
+	timestamp := time.Now().UnixNano() / int64(time.Millisecond)
+	v.Filename = fmt.Sprintf("%s_%d_%s", userId, timestamp, filepath.Ext(file.Filename))
+
 	videopaths := make(map[string]string)
 
 	// Extract the filename

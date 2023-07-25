@@ -19,6 +19,7 @@ func NewVideoController() *VideoController {
 
 func (vc *VideoController) UploadVideo(c *gin.Context) {
 	file, err := c.FormFile("video")
+	userId := c.PostForm("userId")
 
 	if err != nil {
 		// Log for Form Values
@@ -32,7 +33,9 @@ func (vc *VideoController) UploadVideo(c *gin.Context) {
 		return
 	}
 
-	videoPaths, err, filename := vc.videoModel.SaveVideo(c, file)
+	log.Printf("User Id %s", userId)
+
+	videoPaths, err, filename := vc.videoModel.SaveVideo(c, file, userId)
 
 	if err != nil {
 		log.Printf(err.Error())
