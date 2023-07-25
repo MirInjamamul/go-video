@@ -2,6 +2,7 @@ package model
 
 import (
 	"fmt"
+	"log"
 	"mime/multipart"
 	"os"
 	"os/exec"
@@ -15,23 +16,41 @@ type Video struct {
 	Filename string
 }
 
-func (v *Video) SaveVideo(c *gin.Context, file *multipart.FileHeader) (map[string]string, error) {
+func (v *Video) SaveVideo(c *gin.Context, file *multipart.FileHeader) (map[string]string, error, string) {
+	log.Printf("Save Video Started")
 	v.Filename = filepath.Base(file.Filename)
+	videopaths := make(map[string]string)
 
 	// Extract the filename
 
 	filename := strings.TrimSuffix(v.Filename, filepath.Ext(v.Filename))
 
 	// Create a Directory with the same name as the uploaded file
-
 	uploadDir := filepath.Join("uploads", filename)
 	if err := os.MkdirAll(uploadDir, os.ModePerm); err != nil {
-		return nil, err
+		return nil, err, ""
 	}
 
 	destination := filepath.Join(uploadDir, v.Filename)
 
+	log.Printf("Video Uploaded Started")
 	if err := c.SaveUploadedFile(file, destination); err != nil {
+		return nil, err, ""
+	}
+
+	log.Printf("Video Uploaded Finished")
+
+	// Save the original video path
+	videopaths["original"] = destination
+
+	return videopaths, nil, filename
+}
+
+func (v *Video) ProcessVideo(destination string, filename string) (map[string]string, error) {
+	log.Printf("Video Process Started")
+	// Create a Directory with the same name as the uploaded file
+	uploadDir := filepath.Join("uploads", filename)
+	if err := os.MkdirAll(uploadDir, os.ModePerm); err != nil {
 		return nil, err
 	}
 
@@ -40,13 +59,10 @@ func (v *Video) SaveVideo(c *gin.Context, file *multipart.FileHeader) (map[strin
 	resolutions := []string{"360p"}
 	videopaths := make(map[string]string)
 
-	// Save the original video path
-	videopaths["original"] = destination
-
 	for _, res := range resolutions {
 		resolutionDir := filepath.Join(uploadDir, res)
 		if err := os.MkdirAll(resolutionDir, os.ModePerm); err != nil {
-			return videopaths, err
+			return nil, err
 		}
 
 		outputFilename := fmt.Sprintf("%s_%s.mp4", filename, res)
@@ -62,6 +78,8 @@ func (v *Video) SaveVideo(c *gin.Context, file *multipart.FileHeader) (map[strin
 		// Save the resolutions path in the videoPaths map
 		videopaths[res] = outputPath
 	}
+
+	log.Printf("Video Process Finished")
 
 	return videopaths, nil
 }
