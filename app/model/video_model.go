@@ -42,6 +42,7 @@ func (v *Video) SaveVideo(c *gin.Context, file *multipart.FileHeader) (map[strin
 
 	// Save the original video path
 	videopaths["original"] = destination
+	videopaths["360p"] = ""
 
 	return videopaths, nil, filename
 }
