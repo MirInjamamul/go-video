@@ -1,10 +1,15 @@
 package model
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"log"
 	"mime/multipart"
+	"net/http"
 	"os"
+	"video-server/app/config"
+
 	"os/exec"
 	"path/filepath"
 	"strings"
@@ -17,10 +22,15 @@ type Video struct {
 	Filename string
 }
 
+type VideoPaths struct {
+	OldPath string `json:"oldPath"`
+	NewPath string `json:"newPath"`
+}
+
 func (v *Video) SaveVideo(c *gin.Context, file *multipart.FileHeader, userId string) (map[string]string, error, string) {
 	// Generating new FileName
 	timestamp := time.Now().UnixNano() / int64(time.Millisecond)
-	v.Filename = fmt.Sprintf("%s_%d_%s", userId, timestamp, filepath.Ext(file.Filename))
+	v.Filename = fmt.Sprintf("%s_%d%s", userId, timestamp, filepath.Ext(file.Filename))
 
 	videopaths := make(map[string]string)
 
@@ -85,5 +95,46 @@ func (v *Video) ProcessVideo(destination string, filename string) (map[string]st
 
 	log.Printf("Video Process Finished")
 
+	videopaths["original"] = destination
+
 	return videopaths, nil
+}
+
+func (v *Video) UpdateVideoPaths(videoPaths map[string]string) error {
+	apiURL := config.APIBaseURL
+
+	// Create the request body from video Paths data
+	paths := VideoPaths{
+		OldPath: videoPaths["original"],
+		NewPath: videoPaths["360p"],
+	}
+
+	// Marshal the data structure to JSON
+	payload, err := json.Marshal(paths)
+
+	if err != nil {
+		return err
+	}
+
+	// create a http request with post method
+	req, err := http.NewRequest("PUT", apiURL+"post/video/path", bytes.NewBuffer(payload))
+	if err != nil {
+		return err
+	}
+
+	// // Perform Http request
+	client := http.Client{}
+	response, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+
+	// defer response.Body.Close()
+
+	// // Check the response status
+	if response.StatusCode == 200 {
+		return nil
+	}
+
+	return nil
 }

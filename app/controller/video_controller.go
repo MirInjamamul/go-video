@@ -52,6 +52,13 @@ func (vc *VideoController) UploadVideo(c *gin.Context) {
 			log.Printf((err.Error()))
 		} else {
 			log.Printf("Process Done")
+
+			// Hit the Update API with VideoPath
+			if err1 := vc.videoModel.UpdateVideoPaths(videoPaths); err1 != nil {
+				log.Printf("Failed to update video Paths: %v", err)
+			} else {
+				log.Printf("video Path Updated Successfully")
+			}
 		}
 	}()
 
