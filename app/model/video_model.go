@@ -117,7 +117,7 @@ func (v *Video) UpdateVideoPaths(videoPaths map[string]string) error {
 	}
 
 	// create a http request with post method
-	req, err := http.NewRequest("PUT", apiURL+"post/video/path", bytes.NewBuffer(payload))
+	req, err := http.NewRequest("PUT", apiURL+config.PostUpdate, bytes.NewBuffer(payload))
 	if err != nil {
 		return err
 	}
