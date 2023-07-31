@@ -129,7 +129,7 @@ func (v *Video) UpdateVideoPaths(videoPaths map[string]string) error {
 	req.Header.Set("Content-Type", "application/json")
 
 	// // Perform Http request
-	client := &http.Client{}
+	client := http.Client{}
 	response, err := client.Do(req)
 	if err != nil {
 		return err
