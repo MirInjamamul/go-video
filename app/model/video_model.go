@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"mime/multipart"
 	"net/http"
@@ -116,14 +117,19 @@ func (v *Video) UpdateVideoPaths(videoPaths map[string]string) error {
 		return err
 	}
 
+	log.Printf(string(payload))
+
 	// create a http request with post method
-	req, err := http.NewRequest("PUT", apiURL+config.PostUpdate, bytes.NewBuffer(payload))
+	req, err := http.NewRequest("POST", apiURL+config.PostUpdate, bytes.NewBuffer(payload))
 	if err != nil {
 		return err
 	}
 
+	// Set the header
+	req.Header.Set("Content-Type", "application/json")
+
 	// // Perform Http request
-	client := http.Client{}
+	client := &http.Client{}
 	response, err := client.Do(req)
 	if err != nil {
 		return err
@@ -134,6 +140,17 @@ func (v *Video) UpdateVideoPaths(videoPaths map[string]string) error {
 	// // Check the response status
 	if response.StatusCode == 200 {
 		return nil
+	} else {
+		log.Printf("Request failed", response.StatusCode)
+
+		responseByrtes, err := ioutil.ReadAll(response.Body)
+		if err != nil {
+			log.Printf("Error reading response body: ", err)
+			return err
+		}
+
+		errorMessage := string(responseByrtes)
+		log.Printf(errorMessage)
 	}
 
 	return nil
