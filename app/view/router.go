@@ -8,8 +8,8 @@ import (
 
 func RegisterRoutes(r *gin.Engine) {
 	videoController := controller.NewVideoController()
-	systemController := controller.NewSystemController()
+	imageController := controller.NewImageController()
 
 	r.POST("/uploadVideo", videoController.UploadVideo)
-	r.GET("/containerStatus", systemController.ContainerStatus)
+	r.POST("/faceAuth", imageController.Authenticate)
 }
