@@ -155,3 +155,35 @@ func (v *Video) UpdateVideoPaths(videoPaths map[string]string) error {
 
 	return nil
 }
+
+func (v *Video) SaveChatFile(c *gin.Context, file *multipart.FileHeader, userId string) (map[string]string, error) {
+	// Generating new FileName
+	timestamp := time.Now().UnixNano() / int64(time.Millisecond)
+	v.Filename = fmt.Sprintf("%s_%d%s", userId, timestamp, filepath.Ext(file.Filename))
+
+	videopaths := make(map[string]string)
+
+	// Extract the filename
+
+	filename := strings.TrimSuffix(v.Filename, filepath.Ext(v.Filename))
+
+	// Create a Directory with the same name as the uploaded file
+	uploadDir := filepath.Join("uploads", filename)
+	if err := os.MkdirAll(uploadDir, os.ModePerm); err != nil {
+		return nil, err
+	}
+
+	destination := filepath.Join(uploadDir, v.Filename)
+
+	log.Printf("File Uploaded Started")
+	if err := c.SaveUploadedFile(file, destination); err != nil {
+		return nil, err
+	}
+
+	log.Printf("File Uploaded Finished")
+
+	// Save the original video path
+	videopaths["original"] = destination
+
+	return videopaths, nil
+}

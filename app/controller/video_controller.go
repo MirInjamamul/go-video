@@ -29,7 +29,10 @@ func (vc *VideoController) UploadVideo(c *gin.Context) {
 		// log.Printf("Request Form Values: %v \n", formValues)
 		log.Printf(err.Error())
 
-		c.JSON(400, gin.H{"status": false, "error": "Bad Request - No Video file uploaded"})
+		c.JSON(400,
+			gin.H{
+				"status": false,
+				"error":  "Bad Request - No Video file uploaded"})
 		return
 	}
 
@@ -62,4 +65,36 @@ func (vc *VideoController) UploadVideo(c *gin.Context) {
 		}
 	}()
 
+}
+
+func (vc *VideoController) UploadChatFile(c *gin.Context) {
+	file, err := c.FormFile("file")
+	userId := c.PostForm("userId")
+
+	if err != nil {
+		// Log for Form Values
+		// log.Printf("Request Headers: %v \n", c.Request.Header)
+		// Log for Form Values
+		// formValues := c.Request.PostForm
+		// log.Printf("Request Form Values: %v \n", formValues)
+		log.Printf(err.Error())
+
+		c.JSON(400,
+			gin.H{
+				"status": false,
+				"error":  "Bad Request - No file uploaded"})
+		return
+	}
+
+	videoPaths, err := vc.videoModel.SaveChatFile(c, file, userId)
+
+	if err != nil {
+		log.Printf(err.Error())
+		c.JSON(500, gin.H{"status": false, "error": "Internal Server Error - Failed to save Video"})
+	} else {
+		c.JSON(200, gin.H{
+			"status":  true,
+			"message": "Video File Upload Successfully",
+			"url":     videoPaths})
+	}
 }

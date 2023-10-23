@@ -1,0 +1,9 @@
+version: '3'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile  # Path to your Dockerfile
+    ports:
+      - "8090:8090"
