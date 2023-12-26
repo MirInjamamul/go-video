@@ -11,6 +11,7 @@ func RegisterRoutes(r *gin.Engine) {
 	imageController := controller.NewImageController()
 
 	r.POST("/uploadVideo", videoController.UploadVideo)
+	r.POST("/uploadSDKFile", videoController.UploadSDKFile)
 	r.POST("/uploadChatFile", videoController.UploadChatFile)
 
 	r.POST("/faceAuth", imageController.Authenticate)

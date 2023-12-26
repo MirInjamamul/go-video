@@ -61,7 +61,39 @@ func (v *Video) SaveVideo(c *gin.Context, file *multipart.FileHeader, userId str
 	return videopaths, nil, filename
 }
 
-func (v *Video) ProcessVideo(destination string, filename string) (map[string]string, error) {
+func (v *Video) SaveSDKVideo(c *gin.Context, file *multipart.FileHeader) (string, error, string) {
+	// Generating new FileName
+	timestamp := time.Now().UnixNano() / int64(time.Millisecond)
+	v.Filename = fmt.Sprintf("%d", timestamp)
+
+	videopath := ""
+
+	// Extract the filename
+
+	filename := strings.TrimSuffix(v.Filename, filepath.Ext(v.Filename))
+
+	// Create a Directory with the same name as the uploaded file
+	uploadDir := "uploads"
+	if err := os.MkdirAll(uploadDir, os.ModePerm); err != nil {
+		return "", err, ""
+	}
+
+	destination := filepath.Join(uploadDir, v.Filename)
+
+	log.Printf("Video Uploaded Started")
+	if err := c.SaveUploadedFile(file, destination); err != nil {
+		return "", err, ""
+	}
+
+	log.Printf("Video Uploaded Finished")
+
+	// Save the original video path
+	videopath = destination
+
+	return videopath, nil, filename
+}
+
+func (v *Video) ProcessVideo(sourceFile string, filename string) (map[string]string, error) {
 	log.Printf("Video Process Started")
 	// Create a Directory with the same name as the uploaded file
 	uploadDir := filepath.Join("uploads", filename)
@@ -84,7 +116,7 @@ func (v *Video) ProcessVideo(destination string, filename string) (map[string]st
 		outputPath := filepath.Join(resolutionDir, outputFilename)
 
 		// Run FFmpeg command to convert video to the desired resolution
-		cmd := exec.Command("ffmpeg", "-i", destination, "-vf", fmt.Sprintf("scale=-2:%s", res), outputPath)
+		cmd := exec.Command("ffmpeg", "-i", sourceFile, "-vf", fmt.Sprintf("scale=-2:%s", res), outputPath)
 		err := cmd.Run()
 		if err != nil {
 			return nil, fmt.Errorf("FFmpeg conversion error: %s", err.Error())
@@ -94,11 +126,55 @@ func (v *Video) ProcessVideo(destination string, filename string) (map[string]st
 		videopaths[res] = outputPath
 	}
 
+	if err := os.Rename(videopaths["360p"], videopaths["original"]); err != nil {
+		return nil, fmt.Errorf("error replacing input file with output file")
+	}
+
 	log.Printf("Video Process Finished")
 
-	videopaths["original"] = destination
+	videopaths["original"] = videopaths["360p"]
 
 	return videopaths, nil
+}
+
+func (v *Video) ProcessSDKVideo(sourceFile string, filename string) error {
+	log.Printf("Video Process Started")
+	// Create a Directory with the same name as the uploaded file
+	uploadDir := "uploads"
+
+	// Convert and save the video in different resolutions using FFmpeg
+	// resolutions := []string{"240p", "360p", "480p"}
+	resolutions := []string{"360p"}
+	outputPath := ""
+
+	for _, res := range resolutions {
+
+		if err := os.MkdirAll(uploadDir, os.ModePerm); err != nil {
+			return err
+		}
+
+		outputFilename := fmt.Sprintf("%s_%s.mp4", filename, res)
+		outputPath = filepath.Join(uploadDir, outputFilename)
+
+		// Run FFmpeg command to convert video to the desired resolution
+		cmd := exec.Command("ffmpeg", "-i", sourceFile, "-vf", fmt.Sprintf("scale=-2:%s", res), outputPath)
+		err := cmd.Run()
+		if err != nil {
+			return fmt.Errorf("FFmpeg conversion error: %s", err.Error())
+		}
+	}
+
+	if err := os.Remove(sourceFile); err != nil {
+		return fmt.Errorf("error removing original sourceFile")
+	}
+
+	if err := os.Rename(outputPath, sourceFile); err != nil {
+		return fmt.Errorf("error removing original sourceFile")
+	}
+
+	log.Printf("Video Process Finished")
+
+	return nil
 }
 
 func (v *Video) UpdateVideoPaths(videoPaths map[string]string) error {
@@ -116,8 +192,6 @@ func (v *Video) UpdateVideoPaths(videoPaths map[string]string) error {
 	if err != nil {
 		return err
 	}
-
-	log.Printf(string(payload))
 
 	// create a http request with post method
 	req, err := http.NewRequest("POST", apiURL+config.PostUpdate, bytes.NewBuffer(payload))
@@ -141,11 +215,9 @@ func (v *Video) UpdateVideoPaths(videoPaths map[string]string) error {
 	if response.StatusCode == 200 {
 		return nil
 	} else {
-		log.Printf("Request failed", response.StatusCode)
 
 		responseByrtes, err := ioutil.ReadAll(response.Body)
 		if err != nil {
-			log.Printf("Error reading response body: ", err)
 			return err
 		}
 
