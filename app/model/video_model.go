@@ -93,6 +93,66 @@ func (v *Video) SaveSDKVideo(c *gin.Context, file *multipart.FileHeader) (string
 	return videopath, nil, filename
 }
 
+func (v *Video) SaveSDKAudio(gContext *gin.Context, file *multipart.FileHeader) (string, error, string) {
+	// Generate new Filename
+	timestamp := time.Now().UnixNano() / int64(time.Millisecond)
+	v.Filename = fmt.Sprintf("%d", timestamp)
+
+	audioPath := ""
+
+	// Extract the fileName
+	currentFilename := strings.TrimSuffix(v.Filename, filepath.Ext(v.Filename))
+
+	//Create a Directory
+	uploadDir := "uploads"
+	if err := os.MkdirAll(uploadDir, os.ModePerm); err != nil {
+		return "", err, ""
+	}
+
+	destination := filepath.Join(uploadDir, v.Filename)
+
+	log.Printf("Audio Upload Started")
+	if err := gContext.SaveUploadedFile(file, destination); err != nil {
+		return "", err, currentFilename
+	}
+
+	log.Printf("Audio Upload Finished")
+	// Save the originial audio Path
+	audioPath = destination
+
+	return audioPath, nil, currentFilename
+}
+
+func (v *Video) SaveSDKImage(gContext *gin.Context, file *multipart.FileHeader) (string, error, string) {
+	// Generate new Filename
+	timestamp := time.Now().UnixNano() / int64(time.Millisecond)
+	v.Filename = fmt.Sprintf("%d", timestamp)
+
+	imagePath := ""
+
+	// Extract the fileName
+	currentFilename := strings.TrimSuffix(v.Filename, filepath.Ext(v.Filename))
+
+	//Create a Directory
+	uploadDir := "uploads"
+	if err := os.MkdirAll(uploadDir, os.ModePerm); err != nil {
+		return "", err, ""
+	}
+
+	destination := filepath.Join(uploadDir, v.Filename)
+
+	log.Printf("Image Upload Started")
+	if err := gContext.SaveUploadedFile(file, destination); err != nil {
+		return "", err, currentFilename
+	}
+
+	log.Printf("Image Upload Finished")
+	// Save the originial audio Path
+	imagePath = destination
+
+	return imagePath, nil, currentFilename
+}
+
 func (v *Video) ProcessVideo(sourceFile string, filename string) (map[string]string, error) {
 	log.Printf("Video Process Started")
 	// Create a Directory with the same name as the uploaded file
