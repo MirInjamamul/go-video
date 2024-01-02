@@ -7,4 +7,4 @@ services:
     volumes:
       - ./certbot/conf:/etc/letsencrypt
       - ./certbot/www:/var/www/certbot
-    command: certonly --webroot -w /var/www/certbot --force-renewal --email mazharul@cloudspacify.com -d cloudspacify.de --agree-tos
+    command: certonly --webroot -w /var/www/certbot --force-renewal --email mazharul@cloudspacify.com -d www.cloudspacify.de --agree-tos
