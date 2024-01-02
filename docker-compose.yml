@@ -5,6 +5,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile  # Path to your Dockerfile
+    networks:
+      - SDK
   
   nginx:
     container_name: nginx
@@ -15,6 +17,8 @@ services:
       - 8443:443
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+    networks:
+      - SDK
 
   certbot:
     image: certbot/certbot
@@ -22,3 +26,9 @@ services:
     volumes:
       - ./certbot/conf:/etc/letsencrypt
       - ./certbot/www:/var/www/certbot
+    networks:
+      - SDK
+
+networks:
+  SDK:
+    driver: bridge  
