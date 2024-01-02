@@ -17,11 +17,3 @@ services:
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf
       - ./certificates:/etc/letsencrypt/live/unitedsportshub.com  # Adjust to the actual path on your host machine
-
-  # certbot:
-  #   image: certbot/certbot
-  #   container_name: certbot
-  #   volumes:
-  #     - ./certbot/conf:/etc/letsencrypt
-  #     - ./certbot/www:/var/www/certbot
-  #   command: certonly --webroot -w /var/www/certbot --force-renewal --email mazharul@cloudspacify.com -d unitedsportshub.com --agree-tos
