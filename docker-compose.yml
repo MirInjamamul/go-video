@@ -1,10 +1,25 @@
 version: '3'
 
 services:
-  certbot:
-    image: certbot/certbot
-    container_name: certbot
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile  # Path to your Dockerfile
+  
+  nginx:
+    container_name: nginx
+    restart: unless-stopped
+    image: nginx
+    ports:
+      - 8090:80
+      - 8443:443
     volumes:
-      - ./certbot/conf:/etc/letsencrypt
-      - ./certbot/www:/var/www/certbot
-    command: certonly --webroot -w /var/www/certbot --force-renewal --email mazharul@cloudspacify.com -d www.cloudspacify.de --agree-tos
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+
+  # certbot:
+  #   image: certbot/certbot
+  #   container_name: certbot
+  #   volumes:
+  #     - ./certbot/conf:/etc/letsencrypt
+  #     - ./certbot/www:/var/www/certbot
+  #   command: certonly --webroot -w /var/www/certbot --force-renewal --email mazharul@cloudspacify.com -d unitedsportshub.com --agree-tos
