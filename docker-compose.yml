@@ -8,7 +8,6 @@ services:
   
   nginx:
     container_name: nginx
-    restart: unless-stopped
     image: nginx
     ports:
       - 8090:80
