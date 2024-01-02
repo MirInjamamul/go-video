@@ -16,5 +16,7 @@ COPY . .
 # Build the Go application
 RUN go build -o main .
 
+EXPOSE 8090
+
 # Set the entry point command to run the built executable
 CMD ["./main"]
