@@ -15,4 +15,6 @@ func RegisterRoutes(r *gin.Engine) {
 	r.POST("/uploadChatFile", videoController.UploadChatFile)
 
 	r.POST("/faceAuth", imageController.Authenticate)
+
+	r.GET("/test", videoController.Test)
 }

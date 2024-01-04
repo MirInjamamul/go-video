@@ -18,6 +18,13 @@ func NewVideoController() *VideoController {
 	}
 }
 
+func (vc *VideoController) Test(c *gin.Context) {
+	c.JSON(200,
+		gin.H{
+			"status":  true,
+			"message": "Hello World!"})
+}
+
 func (vc *VideoController) UploadVideo(c *gin.Context) {
 	file, err := c.FormFile("video")
 	userId := c.PostForm("userId")
