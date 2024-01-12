@@ -86,10 +86,10 @@ func (vc *VideoController) UploadSDKFile(c *gin.Context) {
 
 	if err != nil {
 		// Log for Form Values
-		// log.Printf("Request Headers: %v \n", c.Request.Header)
+		log.Printf("Request Headers: %v \n", c.Request.Header)
 		// Log for Form Values
-		// formValues := c.Request.PostForm
-		// log.Printf("Request Form Values: %v \n", formValues)
+		formValues := c.Request.PostForm
+		log.Printf("Request Form Values: %v \n", formValues)
 
 		c.JSON(400,
 			gin.H{
